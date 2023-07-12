@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>第七史诗85级装备分数计算与评估系统-V0</title>
+
+    <!-- 引入Bootstrap样式表 -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css" />
+
+    <!-- 引入Vue库 -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.14/vue.min.js"></script>
+
+    <style>
+      .center-title {
+        text-align: center;
+      }
+      .full-width {
+        width: 100%;
+      }
+      .table-primary {
+        --bs-table-bg: #6f42c1;
+        color: white;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app" class="container">
+      <h1 class="center-title">第七史诗85级装备分数计算与评估系统-V0.1</h1>
+
+      <div class="alert alert-primary" role="alert">
+        作者B站【FF-bear】，开源LGPL协议，欢迎大家使用
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      <div class="alert alert-primary" role="alert">
+        感谢B站大佬【D3Tekim】的仿真结果，装备分数（玩家分）及装备强化评估标准默认按照【方案18】进行判定
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      <div class="alert alert-primary" role="alert">
+        感谢B站大佬【香菜炒苦瓜贼好吃】的视频，85装备评级标准（玩家分）按照视频中90级装备的评级标准-11分（即未重铸的85级装备）进行判定
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+      <div class="row">
+        <div class="col-md-3 mt-3">
+          <label for="evaluationPlan">装备强化评估方案</label>
+          <select
+            class="form-select"
+            v-model="evaluationPlan"
+            aria-label="装备强化评估方案"
+            placeholder="装备强化评估方案"
+          >
+            <option v-for="option in options" :value="option.value">{{ option.label }}</option>
+            <option value="自定义方案">自定义方案</option>
+          </select>
+        </div>
+        <div class="col-md-3 mt-3">
+          <label for="equipmentPosition">装备位置</label>
+          <select class="form-select" v-model="equipmentPosition" aria-label="装备位置" placeholder="装备位置">
+            <option v-for="option in positions" :value="option.value">{{ option.label }}</option>
+            <option value="" disabled>右三件</option>
+          </select>
+        </div>
+        <div class="col-md-3 mt-3">
+          <label for="equipmentQuality">装备品质</label>
+          <select class="form-select" v-model="equipmentQuality" aria-label="装备品质" placeholder="装备品质">
+            <option v-for="option in qualities" :value="option.value">{{ option.label }}</option>
+          </select>
+        </div>
+        <div class="col-md-3 mt-3">
+          <label for="equipmentLevel">装备等级</label>
+          <select class="form-select" v-model="equipmentLevel" aria-label="装备等级" placeholder="装备等级">
+            <option v-for="option in levels" :value="option.value">{{ option.label }}</option>
+          </select>
+        </div>
+      </div>
+
+      <table class="table mt-4" v-if="evaluationPlan in evaluationData">
+        <thead>
+          <!-- <tr>
+            <th></th>
+            <th colspan="2">红装</th>
+            <th colspan="2">紫装</th>
+          </tr> -->
+          <tr>
+            <th></th>
+            <th class="table-danger">速度</th>
+            <th class="table-danger">套装分</th>
+            <th class="table-primary">速度</th>
+            <th class="table-primary">套装分</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(row, rowIndex) in evaluationData[evaluationPlan]" :key="rowIndex">
+            <td>+{{ rowIndex * 3 }}</td>
+            <td
+              v-for="(value, columnIndex) in row"
+              :key="columnIndex"
+              contenteditable
+              :data-row-index="rowIndex"
+              :data-column-index="columnIndex"
+              @input="handleValueChange"
+            >
+              {{ value }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="row mt-4">
+        <div class="col-md-3">
+          <label for="attackFixed">攻击固定值</label>
+          <input class="form-control" type="number" id="attackFixed" v-model="attackFixed" placeholder="攻击固定值" />
+        </div>
+        <div class="col-md-3">
+          <label for="attackPercentage">攻击百分比</label>
+          <input
+            class="form-control"
+            type="number"
+            id="attackPercentage"
+            v-model="attackPercentage"
+            placeholder="攻击百分比"
+          />
+        </div>
+        <div class="col-md-3">
+          <label for="defenseFixed">防御固定值</label>
+          <input class="form-control" type="number" id="defenseFixed" v-model="defenseFixed" placeholder="防御固定值" />
+        </div>
+        <div class="col-md-3">
+          <label for="defensePercentage">防御百分比</label>
+          <input
+            class="form-control"
+            type="number"
+            id="defensePercentage"
+            v-model="defensePercentage"
+            placeholder="防御百分比"
+          />
+        </div>
+      </div>
+
+      <div class="row mt-3">
+        <div class="col-md-3">
+          <label for="healthFixed">生命固定值</label>
+          <input class="form-control" type="number" id="healthFixed" v-model="healthFixed" placeholder="生命固定值" />
+        </div>
+        <div class="col-md-3">
+          <label for="healthPercentage">生命百分比</label>
+          <input
+            class="form-control"
+            type="number"
+            id="healthPercentage"
+            v-model="healthPercentage"
+            placeholder="生命百分比"
+          />
+        </div>
+        <div class="col-md-3">
+          <label for="critRate">暴击率</label>
+          <input class="form-control" type="number" id="critRate" v-model="critRate" placeholder="暴击率" />
+        </div>
+        <div class="col-md-3">
+          <label for="critDamage">暴击伤害</label>
+          <input class="form-control" type="number" id="critDamage" v-model="critDamage" placeholder="暴击伤害" />
+        </div>
+      </div>
+
+      <div class="row mt-3">
+        <div class="col-md-3">
+          <label for="effectHit">效果命中</label>
+          <input class="form-control" type="number" id="effectHit" v-model="effectHit" placeholder="效果命中" />
+        </div>
+        <div class="col-md-3">
+          <label for="effectResist">效果抵抗</label>
+          <input class="form-control" type="number" id="effectResist" v-model="effectResist" placeholder="效果抵抗" />
+        </div>
+        <div class="col-md-3">
+          <label for="speed">速度</label>
+          <input class="form-control" type="number" id="speed" v-model="speed" placeholder="速度" />
+        </div>
+      </div>
+
+      <div class="row mt-12">
+        <div class="col-md-12">
+          <label for="resultText">结果</label>
+          <textarea
+            class="form-control full-width"
+            id="resultText"
+            v-model="resultText"
+            placeholder="结果"
+            readonly
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-md-6">
+          <button class="btn btn-primary" @click="calculateScore">提交</button>
+          <button class="btn btn-secondary" @click="resetForm">清空</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 引入Bootstrap脚本 -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.0.2/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      var app = new Vue({
+        el: "#app",
+        data: {
+          options: [
+            { value: "方案11", label: "方案11：对高速需求最大方案" },
+            { value: "方案12", label: "方案12：+0速度要求降低+6提高" },
+            { value: "方案13", label: "方案13：+0+9（红）速度要求降低" },
+            { value: "方案14", label: "方案14：+0（红）速度要求降低+6提高" },
+            { value: "方案15", label: "方案15：+0+9速度要求降低" },
+            { value: "方案16", label: "方案16：+0+9（红）速度要求降低+3+6" },
+            { value: "方案17", label: "方案17：13对中高速装备有要求" },
+            { value: "方案18", label: "方案18：兼顾速度和高分装备方案" },
+            { value: "方案19", label: "方案19：+0（红）降低+3+6+9（紫）提高" },
+            { value: "方案20", label: "方案20：+0（红）+9（红）降低+3+6+9" },
+            { value: "方案21", label: "方案21：+0（红）降低+3+6+9（紫*2）" },
+          ],
+          positions: [
+            { label: "左三件", value: "左三件" },
+            // { label: "右三件", value: "右三件" },
+          ],
+          qualities: [
+            { label: "红装", value: "红装" },
+            { label: "紫装", value: "紫装" },
+          ],
+          levels: [
+            { label: "+0", value: "+0" },
+            { label: "+3", value: "+3" },
+            { label: "+6", value: "+6" },
+            { label: "+9", value: "+9" },
+            { label: "+15", value: "+15" },
+          ],
+          evaluationPlan: "方案18", // 默认选择方案11
+          equipmentPosition: "左三件", // 默认选择左三件
+          equipmentQuality: "红装", // 默认选择红装
+          equipmentLevel: "+0", // 默认选择+0
+          attackFixed: "",
+          attackPercentage: "",
+          defenseFixed: "",
+          defensePercentage: "",
+          healthFixed: "",
+          healthPercentage: "",
+          critRate: "",
+          critDamage: "",
+          effectHit: "",
+          effectResist: "",
+          speed: "",
+          evaluationData: {
+            方案11: [
+              [2, 24, 2, 22],
+              [5, 30, 5, 28],
+              [7, 36, 7, 34],
+              [10, 42, 10, 40],
+            ],
+            方案12: [
+              [2, 24, 2, 22],
+              [4, 30, 4, 28],
+              [7, 36, 7, 34],
+              [10, 42, 10, 40],
+            ],
+            方案13: [
+              [2, 24, 2, 22],
+              [4, 30, 4, 28],
+              [6, 36, 6, 34],
+              [9, 42, 10, 40],
+            ],
+            方案14: [
+              [2, 24, 3, 22],
+              [4, 30, 4, 28],
+              [7, 36, 7, 34],
+              [10, 42, 10, 40],
+            ],
+            方案15: [
+              [2, 24, 2, 22],
+              [4, 30, 4, 28],
+              [6, 36, 6, 34],
+              [9, 42, 9, 40],
+            ],
+            方案16: [
+              [2, 24, 2, 22],
+              [5, 30, 5, 28],
+              [7, 36, 7, 34],
+              [9, 42, 10, 40],
+            ],
+            方案17: [
+              [2, 24, 2, 22],
+              [5, 30, 5, 28],
+              [7, 36, 7, 34],
+              [10, 42, 11, 40],
+            ],
+            方案18: [
+              [2, 24, 3, 22],
+              [5, 30, 5, 28],
+              [7, 36, 7, 34],
+              [10, 42, 11, 40],
+            ],
+            方案19: [
+              [2, 24, 3, 22],
+              [5, 30, 5, 28],
+              [7, 36, 8, 34],
+              [10, 42, 11, 40],
+            ],
+            方案20: [
+              [2, 24, 3, 22],
+              [5, 30, 5, 28],
+              [7, 36, 7, 34],
+              [9, 42, 11, 40],
+            ],
+            方案21: [
+              [2, 24, 3, 22],
+              [4, 30, 5, 28],
+              [7, 36, 8, 34],
+              [10, 42, 11, 40],
+            ],
+            自定义方案: [
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+            ],
+          },
+          resultText: "",
+        },
+        methods: {
+          handleValueChange(event) {
+            const rowIndex = parseInt(event.target.dataset.rowIndex);
+            const columnIndex = parseInt(event.target.dataset.columnIndex);
+            // 更新表格数据
+            const customEvaluationData = JSON.parse(JSON.stringify(this.evaluationData[this.evaluationPlan]));
+            this.evaluationData["自定义方案"] = customEvaluationData;
+
+            this.$set(this.evaluationData["自定义方案"][rowIndex], columnIndex, Number(event.target.innerText));
+            // 将装备强化评估方案select的值设为“自定义方案”
+            this.evaluationPlan = "自定义方案";
+          },
+          calculateScore() {
+            const attackFixedScore = Number(this.attackFixed);
+            const attackPercentageScore = Number(this.attackPercentage);
+            const defenseFixedScore = Number(this.defenseFixed);
+            const defensePercentageScore = Number(this.defensePercentage);
+            const healthFixedScore = Number(this.healthFixed);
+            const healthPercentageScore = Number(this.healthPercentage);
+            const critRateScore = Number(this.critRate);
+            const critDamageScore = Number(this.critDamage);
+            const speedScore = Number(this.speed);
+            const effectHitScore = Number(this.effectHit);
+            const effectResistScore = Number(this.effectResist);
+
+            const totalScore = Math.floor(
+              attackFixedScore / 9 +
+                attackPercentageScore +
+                defenseFixedScore / 6 +
+                defensePercentageScore +
+                healthFixedScore / 50 +
+                healthPercentageScore +
+                critRateScore * 1.5 +
+                critDamageScore * 1.1 +
+                speedScore * 2 +
+                effectHitScore +
+                effectResistScore
+            );
+
+            this.resultText = `装备分数(玩家分，向下取整）为：${totalScore}`;
+
+            // 根据装备等级和分数判断是否可以进一步强化或分级
+            if (this.equipmentLevel !== "+15") {
+              const rowIndex = this.levels.findIndex((level) => level.value === this.equipmentLevel);
+              const columnStartIndex = this.equipmentQuality === "红装" ? 0 : 2;
+              const speedThreshold = this.evaluationData[this.evaluationPlan][rowIndex][columnStartIndex];
+              const scoreThreshold = this.evaluationData[this.evaluationPlan][rowIndex][columnStartIndex + 1];
+
+              if (this.speed > speedThreshold || totalScore > scoreThreshold) {
+                if (this.speed === "") {
+                  this.speed = 0;
+                }
+                this.resultText += `\n可以进一步强化，装备速度阈值：${speedThreshold}，装备实际速度值：${this.speed}，装备分数阈值：${scoreThreshold}`;
+              } else {
+                if (this.speed === "") {
+                  this.speed = 0;
+                }
+                this.resultText += `\n废件，萃取或狗粮，装备速度阈值：${speedThreshold}，装备实际速度值：${this.speed}，装备分数阈值：${scoreThreshold}`;
+              }
+            } else {
+              if (totalScore >= 54 && totalScore <= 56) {
+                this.resultText += "\n优良装备，54-56";
+              } else if (totalScore >= 57 && totalScore <= 59) {
+                this.resultText += "\n主力装备，57-59";
+              } else if (totalScore >= 60 && totalScore <= 62) {
+                this.resultText += "\n极品装备，60-62";
+              } else if (totalScore >= 63 && totalScore <= 65) {
+                this.resultText += "\n传家宝装备，63-65";
+              } else if (totalScore >= 66) {
+                this.resultText += "\n神装装备，66以上";
+              }
+            }
+          },
+          resetForm() {
+            this.attackFixed = "";
+            this.attackPercentage = "";
+            this.defenseFixed = "";
+            this.defensePercentage = "";
+            this.healthFixed = "";
+            this.healthPercentage = "";
+            this.critRate = "";
+            this.critDamage = "";
+            this.effectHit = "";
+            this.effectResist = "";
+            this.speed = "";
+            this.resultText = "";
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
