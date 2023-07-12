@@ -6,7 +6,10 @@
     <title>第七史诗85级装备分数计算与评估系统-V0</title>
 
     <!-- 引入Bootstrap样式表 -->
-    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css"
+    />
 
     <!-- 引入Vue库 -->
     <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.14/vue.min.js"></script>
@@ -22,6 +25,10 @@
         --bs-table-bg: #6f42c1;
         color: white;
       }
+      .btn-group {
+        display: flex;
+        justify-content: space-between;
+      }
     </style>
   </head>
 
@@ -31,15 +38,30 @@
 
       <div class="alert alert-primary" role="alert">
         作者B站【FF-bear】，开源LGPL协议，欢迎大家使用
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
       </div>
       <div class="alert alert-primary" role="alert">
         感谢B站大佬【D3Tekim】的仿真结果，装备分数（玩家分）及装备强化评估标准默认按照【方案18】进行判定
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
       </div>
       <div class="alert alert-primary" role="alert">
         感谢B站大佬【香菜炒苦瓜贼好吃】的视频，85装备评级标准（玩家分）按照视频中90级装备的评级标准-11分（即未重铸的85级装备）进行判定
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
       </div>
 
       <div class="row">
@@ -51,27 +73,50 @@
             aria-label="装备强化评估方案"
             placeholder="装备强化评估方案"
           >
-            <option v-for="option in options" :value="option.value">{{ option.label }}</option>
+            <option v-for="option in options" :value="option.value">
+              {{ option.label }}
+            </option>
             <option value="自定义方案">自定义方案</option>
           </select>
         </div>
         <div class="col-md-3 mt-3">
           <label for="equipmentPosition">装备位置</label>
-          <select class="form-select" v-model="equipmentPosition" aria-label="装备位置" placeholder="装备位置">
-            <option v-for="option in positions" :value="option.value">{{ option.label }}</option>
+          <select
+            class="form-select"
+            v-model="equipmentPosition"
+            aria-label="装备位置"
+            placeholder="装备位置"
+          >
+            <option v-for="option in positions" :value="option.value">
+              {{ option.label }}
+            </option>
             <option value="" disabled>右三件</option>
           </select>
         </div>
         <div class="col-md-3 mt-3">
           <label for="equipmentQuality">装备品质</label>
-          <select class="form-select" v-model="equipmentQuality" aria-label="装备品质" placeholder="装备品质">
-            <option v-for="option in qualities" :value="option.value">{{ option.label }}</option>
+          <select
+            class="form-select"
+            v-model="equipmentQuality"
+            aria-label="装备品质"
+            placeholder="装备品质"
+          >
+            <option v-for="option in qualities" :value="option.value">
+              {{ option.label }}
+            </option>
           </select>
         </div>
         <div class="col-md-3 mt-3">
           <label for="equipmentLevel">装备等级</label>
-          <select class="form-select" v-model="equipmentLevel" aria-label="装备等级" placeholder="装备等级">
-            <option v-for="option in levels" :value="option.value">{{ option.label }}</option>
+          <select
+            class="form-select"
+            v-model="equipmentLevel"
+            aria-label="装备等级"
+            placeholder="装备等级"
+          >
+            <option v-for="option in levels" :value="option.value">
+              {{ option.label }}
+            </option>
           </select>
         </div>
       </div>
@@ -92,7 +137,10 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(row, rowIndex) in evaluationData[evaluationPlan]" :key="rowIndex">
+          <tr
+            v-for="(row, rowIndex) in evaluationData[evaluationPlan]"
+            :key="rowIndex"
+          >
             <td>+{{ rowIndex * 3 }}</td>
             <td
               v-for="(value, columnIndex) in row"
@@ -111,7 +159,13 @@
       <div class="row mt-4">
         <div class="col-md-3">
           <label for="attackFixed">攻击固定值</label>
-          <input class="form-control" type="number" id="attackFixed" v-model="attackFixed" placeholder="攻击固定值" />
+          <input
+            class="form-control"
+            type="number"
+            id="attackFixed"
+            v-model="attackFixed"
+            placeholder="攻击固定值"
+          />
         </div>
         <div class="col-md-3">
           <label for="attackPercentage">攻击百分比</label>
@@ -125,7 +179,13 @@
         </div>
         <div class="col-md-3">
           <label for="defenseFixed">防御固定值</label>
-          <input class="form-control" type="number" id="defenseFixed" v-model="defenseFixed" placeholder="防御固定值" />
+          <input
+            class="form-control"
+            type="number"
+            id="defenseFixed"
+            v-model="defenseFixed"
+            placeholder="防御固定值"
+          />
         </div>
         <div class="col-md-3">
           <label for="defensePercentage">防御百分比</label>
@@ -142,7 +202,13 @@
       <div class="row mt-3">
         <div class="col-md-3">
           <label for="healthFixed">生命固定值</label>
-          <input class="form-control" type="number" id="healthFixed" v-model="healthFixed" placeholder="生命固定值" />
+          <input
+            class="form-control"
+            type="number"
+            id="healthFixed"
+            v-model="healthFixed"
+            placeholder="生命固定值"
+          />
         </div>
         <div class="col-md-3">
           <label for="healthPercentage">生命百分比</label>
@@ -156,26 +222,56 @@
         </div>
         <div class="col-md-3">
           <label for="critRate">暴击率</label>
-          <input class="form-control" type="number" id="critRate" v-model="critRate" placeholder="暴击率" />
+          <input
+            class="form-control"
+            type="number"
+            id="critRate"
+            v-model="critRate"
+            placeholder="暴击率"
+          />
         </div>
         <div class="col-md-3">
           <label for="critDamage">暴击伤害</label>
-          <input class="form-control" type="number" id="critDamage" v-model="critDamage" placeholder="暴击伤害" />
+          <input
+            class="form-control"
+            type="number"
+            id="critDamage"
+            v-model="critDamage"
+            placeholder="暴击伤害"
+          />
         </div>
       </div>
 
       <div class="row mt-3">
         <div class="col-md-3">
           <label for="effectHit">效果命中</label>
-          <input class="form-control" type="number" id="effectHit" v-model="effectHit" placeholder="效果命中" />
+          <input
+            class="form-control"
+            type="number"
+            id="effectHit"
+            v-model="effectHit"
+            placeholder="效果命中"
+          />
         </div>
         <div class="col-md-3">
           <label for="effectResist">效果抵抗</label>
-          <input class="form-control" type="number" id="effectResist" v-model="effectResist" placeholder="效果抵抗" />
+          <input
+            class="form-control"
+            type="number"
+            id="effectResist"
+            v-model="effectResist"
+            placeholder="效果抵抗"
+          />
         </div>
         <div class="col-md-3">
           <label for="speed">速度</label>
-          <input class="form-control" type="number" id="speed" v-model="speed" placeholder="速度" />
+          <input
+            class="form-control"
+            type="number"
+            id="speed"
+            v-model="speed"
+            placeholder="速度"
+          />
         </div>
       </div>
 
@@ -192,8 +288,14 @@
         </div>
       </div>
 
-      <div class="row mt-4">
+      <!-- <div class="row mt-4">
         <div class="col-md-6">
+          <button class="btn btn-primary" @click="calculateScore">提交</button>
+          <button class="btn btn-secondary" @click="resetForm">清空</button>
+        </div>
+      </div> -->
+      <div class="row mt-4">
+        <div class="col-md-12 btn-group">
           <button class="btn btn-primary" @click="calculateScore">提交</button>
           <button class="btn btn-secondary" @click="resetForm">清空</button>
         </div>
@@ -332,10 +434,16 @@
             const rowIndex = parseInt(event.target.dataset.rowIndex);
             const columnIndex = parseInt(event.target.dataset.columnIndex);
             // 更新表格数据
-            const customEvaluationData = JSON.parse(JSON.stringify(this.evaluationData[this.evaluationPlan]));
+            const customEvaluationData = JSON.parse(
+              JSON.stringify(this.evaluationData[this.evaluationPlan])
+            );
             this.evaluationData["自定义方案"] = customEvaluationData;
 
-            this.$set(this.evaluationData["自定义方案"][rowIndex], columnIndex, Number(event.target.innerText));
+            this.$set(
+              this.evaluationData["自定义方案"][rowIndex],
+              columnIndex,
+              Number(event.target.innerText)
+            );
             // 将装备强化评估方案select的值设为“自定义方案”
             this.evaluationPlan = "自定义方案";
           },
@@ -370,10 +478,18 @@
 
             // 根据装备等级和分数判断是否可以进一步强化或分级
             if (this.equipmentLevel !== "+15") {
-              const rowIndex = this.levels.findIndex((level) => level.value === this.equipmentLevel);
+              const rowIndex = this.levels.findIndex(
+                (level) => level.value === this.equipmentLevel
+              );
               const columnStartIndex = this.equipmentQuality === "红装" ? 0 : 2;
-              const speedThreshold = this.evaluationData[this.evaluationPlan][rowIndex][columnStartIndex];
-              const scoreThreshold = this.evaluationData[this.evaluationPlan][rowIndex][columnStartIndex + 1];
+              const speedThreshold =
+                this.evaluationData[this.evaluationPlan][rowIndex][
+                  columnStartIndex
+                ];
+              const scoreThreshold =
+                this.evaluationData[this.evaluationPlan][rowIndex][
+                  columnStartIndex + 1
+                ];
 
               if (this.speed > speedThreshold || totalScore > scoreThreshold) {
                 if (this.speed === "") {
