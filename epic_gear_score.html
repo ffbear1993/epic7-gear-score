@@ -35,7 +35,9 @@
   <body>
     <div id="app" class="container">
       <h1 class="center-title">第七史诗85级装备分数计算与评估系统-V0.1</h1>
-      <h6 class="center-title">https://github.com/ffbear1993/epic7-gear-score.git</h6>
+      <h6 class="center-title">
+        https://github.com/ffbear1993/epic7-gear-score.git
+      </h6>
 
       <div class="alert alert-primary" role="alert">
         作者B站【FF-bear】，开源LGPL协议，欢迎大家使用
@@ -514,6 +516,8 @@
                 this.resultText += "\n传家宝装备，63-65";
               } else if (totalScore >= 66) {
                 this.resultText += "\n神装装备，66以上";
+              } else {
+                this.resultText += "\n无评级装备，低于54";
               }
             }
           },
