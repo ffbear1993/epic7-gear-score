@@ -340,7 +340,7 @@
             { label: "+9", value: "+9" },
             { label: "+15", value: "+15" },
           ],
-          evaluationPlan: "方案18", // 默认选择方案11
+          evaluationPlan: "方案18", // 默认选择方案18
           equipmentPosition: "左三件", // 默认选择左三件
           equipmentQuality: "红装", // 默认选择红装
           equipmentLevel: "+0", // 默认选择+0
@@ -494,7 +494,7 @@
                   columnStartIndex + 1
                 ];
 
-              if (this.speed > speedThreshold || totalScore > scoreThreshold) {
+              if (this.speed >= speedThreshold || totalScore >= scoreThreshold) {
                 if (this.speed === "") {
                   this.speed = 0;
                 }
